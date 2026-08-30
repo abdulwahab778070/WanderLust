@@ -1,0 +1,189 @@
+<% layout("admin/adminboilerplate.ejs") %>
+
+<div class="container-fluid px-0">
+  <!-- Top Header & Navigation -->
+  <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4 gap-3">
+    <div>
+      <h2 class="fw-bold text-dark mb-1">Manage All Users</h2>
+      <p class="text-muted mb-0 small">Search, inspect, or remove registered users and their accounts.</p>
+    </div>
+    
+    <div class="d-flex align-items-center gap-3">
+      <div class="badge bg-dark fs-6 px-3 py-2 rounded-3">
+        Total Users: <%= allUsers ? allUsers.length : 0 %>
+      </div>
+      <% if (allUsers && allUsers.length > 0) { %>
+        <button type="button" class="btn btn-outline-danger btn-sm rounded-pill px-3 py-2 fw-semibold shadow-sm d-none" id="deleteSelectedBtn">
+          <i class="fa-solid fa-trash-can me-1"></i> Delete Selected (<span id="selectedCount">0</span>)
+        </button>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Search Bar Section -->
+  <% if (allUsers && allUsers.length > 0) { %>
+    <div class="card border-0 shadow-sm rounded-4 p-3 bg-white mb-4">
+      <div class="input-group">
+        <span class="input-group-text bg-light border-0 text-muted ps-3"><i class="fa-solid fa-magnifying-glass"></i></span>
+        <input type="text" id="userSearchInput" class="form-control bg-light border-0 shadow-none" placeholder="Search by username or email..." autocomplete="off">
+      </div>
+    </div>
+
+    <!-- Users Table Form -->
+    <form action="/admin/users/delete-selected?_method=DELETE" method="POST" id="bulkDeleteForm">
+      <input type="hidden" name="_method" value="DELETE">
+      
+      <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0" id="usersTable">
+            <thead class="table-light text-uppercase fs-7 text-muted">
+              <tr>
+                <th class="py-3 ps-4" style="width: 40px;">
+                  <input class="form-check-input shadow-none cursor-pointer" type="checkbox" id="selectAllCheckbox" title="Select All">
+                </th>
+                <th class="py-3 px-3">User</th>
+                <th class="py-3 px-3">Email Address</th>
+                <th class="py-3 px-3">Contact</th>
+                <th class="py-3 px-3">Account ID</th>
+                <th class="py-3 px-4 text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% allUsers.forEach(user => { %>
+                <tr class="user-row" data-search="<%= user.username ? user.username.toLowerCase() : '' %> <%= user.email ? user.email.toLowerCase() : '' %>">
+                  <td class="ps-4 py-3">
+                    <input class="form-check-input user-checkbox shadow-none cursor-pointer" type="checkbox" name="userIds[]" value="<%= user._id %>">
+                  </td>
+                  <td class="px-3 py-3">
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="bg-danger bg-opacity-10 text-danger rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 35px; height: 35px; flex-shrink: 0; font-size: 0.85rem;">
+                        <%= user.username ? user.username.charAt(0).toUpperCase() : 'U' %>
+                      </div>
+                      <div class="text-truncate" style="max-width: 150px;">
+                        <h6 class="fw-bold text-dark mb-0 username-text text-truncate fs-6"><%= user.username %></h6>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-3 py-3 text-muted email-text small text-truncate" style="max-width: 180px;"><%= user.email %></td>
+                  <td class="px-3 py-3 text-muted small"><%= user.contact || 'N/A' %></td>
+                  <td class="px-3 py-3 font-monospace text-muted" style="font-size: 0.75rem;"><%= user._id %></td>
+                  <td class="px-4 py-3 text-end">
+                    <div class="d-flex align-items-center justify-content-end gap-1">
+                      <a href="/admin/users/<%= user._id %>" class="btn btn-sm btn-outline-dark rounded-3 px-2.5 py-1 fw-semibold" style="font-size: 0.8rem;">
+                        <i class="fa-solid fa-eye me-1"></i> View
+                      </a>
+                      <a href="/admin/chats/user/<%= user._id %>" class="btn btn-sm btn-outline-secondary rounded-3 px-2.5 py-1 fw-semibold" style="font-size: 0.8rem;" title="View Chat">
+                        <i class="fa-solid fa-comments"></i>
+                      </a>
+                      <a href="/admin/users/<%= user._id %>?_method=DELETE" onclick="event.preventDefault(); document.getElementById('delete-user-<%= user._id %>').submit();" class="btn btn-sm btn-outline-danger rounded-3 px-2 py-1" style="font-size: 0.8rem;" title="Delete User">
+                        <i class="fa-solid fa-trash-can"></i>
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </form>
+
+    <!-- Separate individual delete forms to avoid nested form validation/DOM conflicts -->
+    <% allUsers.forEach(user => { %>
+      <form id="delete-user-<%= user._id %>" action="/admin/users/<%= user._id %>?_method=DELETE" method="POST" class="d-none" onsubmit="return confirm('Delete this user and all their related listings/messages?');"></form>
+    <% }) %>
+
+  <% } else { %>
+    <div class="card border-0 shadow-sm rounded-4 p-5 text-center bg-white">
+      <div class="py-5">
+        <i class="fa-solid fa-users-slash fs-1 text-muted opacity-50 mb-3 d-block"></i>
+        <h5 class="fw-bold text-dark mb-1">No Users Found</h5>
+        <p class="text-muted small mb-0">There are no registered users on WanderLust yet.</p>
+      </div>
+    </div>
+  <% } %>
+</div>
+
+<style>
+  .cursor-pointer {
+    cursor: pointer;
+  }
+</style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("userSearchInput");
+    const userRows = document.querySelectorAll(".user-row");
+    const selectAllCheckbox = document.getElementById("selectAllCheckbox");
+    const userCheckboxes = document.querySelectorAll(".user-checkbox");
+    const deleteSelectedBtn = document.getElementById("deleteSelectedBtn");
+    const selectedCountSpan = document.getElementById("selectedCount");
+    const bulkDeleteForm = document.getElementById("bulkDeleteForm");
+
+    if (searchInput) {
+      searchInput.addEventListener("input", function (e) {
+        const term = e.target.value.toLowerCase().trim();
+        userRows.forEach(row => {
+          const searchData = row.getAttribute("data-search");
+          if (searchData.includes(term)) {
+            row.style.display = "";
+          } else {
+            row.style.display = "none";
+          }
+        });
+      });
+    }
+
+    function updateDeleteButton() {
+      const checkedCount = document.querySelectorAll(".user-checkbox:checked").length;
+      if (checkedCount > 0) {
+        deleteSelectedBtn.classList.remove("d-none");
+        selectedCountSpan.textContent = checkedCount;
+      } else {
+        deleteSelectedBtn.classList.add("d-none");
+      }
+    }
+
+    userCheckboxes.forEach(cb => {
+      cb.addEventListener("change", updateDeleteButton);
+    });
+
+    if (selectAllCheckbox) {
+      selectAllCheckbox.addEventListener("change", function () {
+        userCheckboxes.forEach(cb => {
+          if (cb.closest("tr").style.display !== "none") {
+            cb.checked = selectAllCheckbox.checked;
+          }
+        });
+        updateDeleteButton();
+      });
+    }
+
+    if (deleteSelectedBtn) {
+      deleteSelectedBtn.addEventListener("click", function () {
+        const checkedBoxes = document.querySelectorAll(".user-checkbox:checked");
+        
+        if (checkedBoxes.length === 0) {
+          alert("Please select at least one user.");
+          return;
+        }
+
+        if (confirm(`Are you sure you want to permanently delete ${checkedBoxes.length} selected user(s) and their associated listings/messages?`)) {
+          // Gather all selected IDs into an array
+          const ids = Array.from(checkedBoxes).map(cb => cb.value);
+
+          // Clear form and insert method override + single comma-separated input
+          bulkDeleteForm.innerHTML = '<input type="hidden" name="_method" value="DELETE">';
+          
+          const hiddenInput = document.createElement("input");
+          hiddenInput.type = "hidden";
+          hiddenInput.name = "allUserIds";
+          hiddenInput.value = ids.join(",");
+          bulkDeleteForm.appendChild(hiddenInput);
+
+          bulkDeleteForm.submit();
+        }
+      });
+    }
+  });
+</script>

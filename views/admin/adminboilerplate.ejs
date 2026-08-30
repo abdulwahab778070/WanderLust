@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WanderLust Admin Dashboard</title>
+  
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Custom Admin Stylesheet -->
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+
+  <div class="admin-wrapper">
+    
+    <!-- Sidebar -->
+    <nav class="admin-sidebar">
+      <div class="sidebar-brand">
+        <i class="fa-solid fa-shield-halved text-danger"></i>
+        <span>WanderLust Admin</span>
+      </div>
+      <ul class="sidebar-menu">
+        <li>
+          <a href="/admin/dashboard" class="<%= typeof activePage !== 'undefined' && activePage === 'dashboard' ? 'active' : '' %>">
+            <i class="fa-solid fa-chart-pie"></i><span>Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/listings" class="<%= typeof activePage !== 'undefined' && activePage === 'listings' ? 'active' : '' %>">
+            <i class="fa-solid fa-hotel"></i><span>All Listings</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/users" class="<%= typeof activePage !== 'undefined' && activePage === 'users' ? 'active' : '' %>">
+            <i class="fa-solid fa-users-gear"></i><span>All Users</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/chats" class="<%= typeof activePage !== 'undefined' && activePage === 'chats' ? 'active' : '' %>">
+            <i class="fa-solid fa-bullhorn text-danger"></i><span>Official Broadcasts</span>
+          </a>
+        </li>
+        <li class="mt-4 border-top border-secondary pt-3">
+          <a href="/listings" target="_blank">
+            <i class="fa-solid fa-globe"></i><span>Visit Website</span>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/logout" class="text-danger">
+            <i class="fa-solid fa-right-from-bracket"></i><span>Logout</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Main Section -->
+    <div class="admin-main">
+      
+      <!-- Top Header Navbar -->
+      <header class="admin-navbar">
+        <div class="d-flex align-items-center gap-3">
+          <h5 class="fw-bold mb-0 text-dark">Control Center</h5>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+          <div class="dropdown">
+            <a href="#" class="d-flex align-items-center gap-2 text-dark text-decoration-none dropdown-toggle" data-bs-toggle="dropdown">
+              <div class="bg-danger text-white rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 38px; height: 38px;">
+                A
+              </div>
+              <span class="fw-semibold">System Admin</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 mt-2">
+              <li>
+                <a class="dropdown-item py-2" href="/admin/settings">
+                  <i class="fa-solid fa-user-gear me-2 text-dark"></i>Account Settings
+                </a>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <a class="dropdown-item py-2" href="/admin/logout">
+                  <i class="fa-solid fa-right-from-bracket me-2 text-danger"></i>Logout
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </header>
+
+      <!-- Flash Messages Area -->
+      <div class="px-4 pt-3">
+        <% if(typeof success !== 'undefined' && success && success.length) { %>
+          <div class="alert alert-success alert-dismissible fade show rounded-3 shadow-sm border-0" role="alert">
+            <i class="fa-solid fa-circle-check me-2"></i><%= success %>
+            <button type="button" class="btn-close shadow-none" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        <% } %>
+
+        <% if(typeof error !== 'undefined' && error && error.length) { %>
+          <div class="alert alert-danger alert-dismissible fade show rounded-3 shadow-sm border-0" role="alert">
+            <i class="fa-solid fa-circle-exclamation me-2"></i><%= error %>
+            <button type="button" class="btn-close shadow-none" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        <% } %>
+      </div>
+
+      <!-- Main Dynamic Content Inject via ejs-mate -->
+      <main class="admin-content">
+        <%- body %>
+      </main>
+
+    </div>
+  </div>
+
+  <!-- Bootstrap 5 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

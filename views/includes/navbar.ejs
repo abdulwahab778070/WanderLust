@@ -1,0 +1,117 @@
+<nav class="navbar navbar-expand-lg border-bottom sticky-top">
+  <div class="container-fluid position-relative px-3 px-md-5">
+    <!-- Left: Brand Logo -->
+    <a class="navbar-brand d-flex align-items-center gap-2" href="/listings">
+      <i class="fa-regular fa-compass"></i>
+      <span class="brand-text">WanderLust</span>
+    </a>
+
+    <!-- Center: Search Bar -->
+    <div class="search-bar-container">
+      <form class="d-flex align-items-center" role="search" action="/listings/search" method="GET">
+        <input class="form-control search-input" type="search" name="q" placeholder="Search destinations..."/>
+        <button class="btn btn-search" type="submit">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+      </form>
+    </div>
+
+    <!-- Toggle Button for Mobile -->
+    <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Right: Navigation Options -->
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto align-items-lg-center gap-2 mt-2 mt-lg-0">
+        
+        <% if(!crrUser){ %>
+          <li class="nav-item">
+            <a class="nav-link" href="/listings">Explore</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/singup">Sign Up</a>
+          </li>
+          <li class="nav-item">
+            <a class="btn btn-login nav-link" href="/login">Log In</a>
+          </li>
+        <% } %>
+
+        <% if(crrUser){ %>
+          <li class="nav-item">
+            <a class="nav-link fw-semibold" href="/listings/new">Add Listing</a>
+          </li>
+
+          <!-- Dedicated Notification Bell Icon with unreadNotifCount -->
+          <li class="nav-item d-flex align-items-center px-lg-2">
+            <a class="nav-link position-relative px-2 py-1" href="/notifications" title="WanderLust Notices">
+              <i class="fa-solid fa-bell fs-5 text-dark"></i>
+              <% if(unreadNotifCount && unreadNotifCount !== 0) { %>
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-light" style="font-size: 0.6rem; padding: 0.25em 0.4em;">
+                  <%= unreadNotifCount %>
+                </span>
+              <% } %>
+            </a>
+          </li>
+
+          <!-- User Profile Dropdown (Only Messages Count) -->
+          <li class="nav-item dropdown ms-lg-2">
+            <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 bg-light border rounded-pill px-3 py-1.5 position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="fa-solid fa-bars small"></i>
+              
+              <div class="position-relative d-inline-block">
+                <i class="fa-solid fa-circle-user fs-4 text-danger"></i>
+                <% if(msgCount && msgCount !== 0 && msgCount !== "0") { %>
+                  <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-dark border border-light" style="font-size: 0.6rem; padding: 0.25em 0.4em;">
+                    <%= msgCount %>
+                  </span>
+                <% } %>
+              </div>
+
+              <span class="fw-semibold small d-none d-xl-inline"><%= crrUser.username %></span>
+            </a>
+
+            <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg rounded-4 p-2 mt-2">
+              <li class="px-3 py-2 border-bottom mb-1">
+                <small class="text-muted d-block">Signed in as</small>
+                <strong class="text-dark"><%= crrUser.username %></strong>
+              </li>
+              <li>
+                <a class="dropdown-menu-item dropdown-item rounded-3 py-2" href="/profile/listings">
+                  <i class="fa-solid fa-list text-danger me-2"></i> My Listings
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-menu-item dropdown-item rounded-3 py-2 d-flex justify-content-between align-items-center" href="/profile/messages">
+                  <span><i class="fa-solid fa-paper-plane text-danger me-2"></i> Messages</span>
+                  <% if(msgCount && msgCount !== 0 && msgCount !== "0") { %>
+                    <span class="badge bg-dark rounded-pill"><%= msgCount %></span>
+                  <% } %>
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-menu-item dropdown-item rounded-3 py-2 d-flex justify-content-between align-items-center" href="/notifications">
+                  <span><i class="fa-solid fa-bell text-danger me-2"></i>Notification</span>
+                  <% if(unreadNotifCount && unreadNotifCount !== 0) { %>
+                    <span class="badge bg-danger rounded-pill"><%= unreadNotifCount %></span>
+                  <% } %>
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-menu-item dropdown-item rounded-3 py-2" href="/profile/settings">
+                  <i class="fa-solid fa-gear text-danger me-2"></i> Profile Settings
+                </a>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <a class="dropdown-menu-item dropdown-item rounded-3 py-2 text-danger fw-semibold" href="/logout">
+                  <i class="fa-solid fa-right-from-bracket me-2"></i> Log Out
+                </a>
+              </li>
+            </ul>
+          </li>
+        <% } %>
+      </ul>
+    </div>
+  </div>
+</nav>

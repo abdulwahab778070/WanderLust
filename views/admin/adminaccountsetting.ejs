@@ -1,0 +1,103 @@
+<% layout("admin/adminboilerplate.ejs") %>
+
+<div class="container-fluid px-0">
+  <div class="mb-4">
+    <h2 class="fw-bold text-dark mb-1">Admin Account Settings</h2>
+    <p class="text-muted">Update your admin credentials or change your password separately and securely.</p>
+  </div>
+
+  <div class="row g-4">
+    <!-- Section 1: Update Profile Details (Username & Email) -->
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+        <h5 class="fw-bold text-dark mb-3"><i class="fa-solid fa-user-gear text-dark me-2"></i>Profile Information</h5>
+        <p class="text-muted small mb-4">Update your admin username and email address independently.</p>
+
+        <form action="/admin/settings/profile" method="POST" class="needs-validation" novalidate>
+          <div class="mb-3">
+            <label for="username" class="form-label small fw-semibold text-secondary">Username</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light border-end-0 rounded-start-3"><i class="fa-solid fa-user text-muted"></i></span>
+              <input type="text" id="username" name="username" value="<%= admin.username %>" class="form-control border-start-0 bg-light rounded-end-3 ps-1 shadow-none" required>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label for="email" class="form-label small fw-semibold text-secondary">Email Address</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light border-end-0 rounded-start-3"><i class="fa-solid fa-envelope text-muted"></i></span>
+              <input type="email" id="email" name="email" value="<%= admin.email %>" class="form-control border-start-0 bg-light rounded-end-3 ps-1 shadow-none" required>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-dark px-4 py-2.5 rounded-3 fw-semibold shadow-sm">
+            <i class="fa-solid fa-floppy-disk me-2"></i>Update Profile
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Section 2: Change Password -->
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+        <h5 class="fw-bold text-dark mb-3"><i class="fa-solid fa-lock text-danger me-2"></i>Change Password</h5>
+        <p class="text-muted small mb-4">Secure your account by updating your current password.</p>
+
+        <form action="/admin/settings/password" method="POST" class="needs-validation" novalidate>
+          <div class="mb-3">
+            <label for="currentPassword" class="form-label small fw-semibold text-secondary">Current Password</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light border-end-0 rounded-start-3"><i class="fa-solid fa-key text-muted"></i></span>
+              <input type="password" id="currentPassword" name="currentPassword" class="form-control border-start-0 border-end-0 bg-light rounded-0 ps-1 shadow-none" placeholder="Enter current password" required>
+              <button class="btn btn-outline-secondary border bg-light rounded-end-3 text-muted px-3 shadow-none" type="button" onclick="togglePassword('currentPassword', 'currentIcon')">
+                <i class="fa-solid fa-eye" id="currentIcon"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="newPassword" class="form-label small fw-semibold text-secondary">New Password</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light border-end-0 rounded-start-3"><i class="fa-solid fa-lock text-muted"></i></span>
+              <input type="password" id="newPassword" name="newPassword" class="form-control border-start-0 border-end-0 bg-light rounded-0 ps-1 shadow-none" placeholder="Enter new password" required>
+              <button class="btn btn-outline-secondary border bg-light rounded-end-3 text-muted px-3 shadow-none" type="button" onclick="togglePassword('newPassword', 'newIcon')">
+                <i class="fa-solid fa-eye" id="newIcon"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label for="confirmPassword" class="form-label small fw-semibold text-secondary">Confirm New Password</label>
+            <div class="input-group">
+              <span class="input-group-text bg-light border-end-0 rounded-start-3"><i class="fa-solid fa-lock text-muted"></i></span>
+              <input type="password" id="confirmPassword" name="confirmPassword" class="form-control border-start-0 border-end-0 bg-light rounded-0 ps-1 shadow-none" placeholder="Confirm new password" required>
+              <button class="btn btn-outline-secondary border bg-light rounded-end-3 text-muted px-3 shadow-none" type="button" onclick="togglePassword('confirmPassword', 'confirmIcon')">
+                <i class="fa-solid fa-eye" id="confirmIcon"></i>
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-outline-dark px-4 py-2.5 rounded-3 fw-semibold shadow-sm">
+            <i class="fa-solid fa-key me-2"></i>Update Password
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function togglePassword(fieldId, iconId) {
+    const passInput = document.getElementById(fieldId);
+    const icon = document.getElementById(iconId);
+    if (passInput.type === "password") {
+      passInput.type = "text";
+      icon.classList.remove("fa-eye");
+      icon.classList.add("fa-eye-slash");
+    } else {
+      passInput.type = "password";
+      icon.classList.remove("fa-eye-slash");
+      icon.classList.add("fa-eye");
+    }
+  }
+</script>

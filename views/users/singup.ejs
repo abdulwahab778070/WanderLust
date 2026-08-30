@@ -1,0 +1,126 @@
+<% layout("/layouts/boilerplate.ejs") %>
+
+<div class="row mt-4 mb-5">
+  <div class="col-12 col-md-8 col-lg-6 mx-auto">
+    <div class="card border-0 shadow-lg rounded-4 p-4 p-md-5 bg-white auth-card">
+      <div class="text-center mb-4">
+        <div class="auth-icon-box mb-2">
+          <i class="fa-solid fa-user-plus text-danger display-5"></i>
+        </div>
+        <h3 class="fw-bold mb-1">SignUp</h3>
+        <p class="text-muted small">Create your account on WanderLust</p>
+      </div>
+
+      <form method="post" action="/singup" novalidate class="needs-validation" id="signupForm">
+        
+        <div class="mb-3">
+          <label for="username" class="form-label fw-semibold">Username</label>
+          <div class="input-group has-validation">
+            <span class="input-group-text bg-light border-end-0 rounded-start-3"><i class="fa-solid fa-user text-muted"></i></span>
+            <input id="username" name="username" placeholder="enter username" type="text" class="form-control border-start-0 rounded-end-3 ps-1" required>
+            <div class="invalid-feedback">Please enter a username.</div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="mb-3 col-md-6">
+            <label for="email" class="form-label fw-semibold">Email</label>
+            <div class="input-group has-validation">
+              <span class="input-group-text bg-light border-end-0 rounded-start-3"><i class="fa-solid fa-envelope text-muted"></i></span>
+              <input id="email" name="email" placeholder="enter email" type="email" class="form-control border-start-0 rounded-end-3 ps-1" required>
+              <div class="invalid-feedback">Please enter a valid email.</div>
+            </div>
+          </div>
+
+          <div class="mb-3 col-md-6">
+            <label for="contact" class="form-label fw-semibold">Contact / WhatsApp Number</label>
+            <div class="input-group has-validation">
+              <span class="input-group-text bg-light border-end-0 rounded-start-3"><i class="fa-solid fa-phone text-muted"></i></span>
+              <input id="contact" name="contact" placeholder="e.g. 92 300 0000000" type="tel" class="form-control border-start-0 rounded-end-3 ps-1" required>
+              <div class="invalid-feedback">Please enter a valid phone or WhatsApp number.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Create Password Field -->
+        <div class="mb-3">
+          <label for="password" class="form-label fw-semibold">Create Password</label>
+          <div class="input-group has-validation">
+            <span class="input-group-text bg-light border-end-0 rounded-start-3"><i class="fa-solid fa-lock text-muted"></i></span>
+            <input id="password" name="password" placeholder="enter password" type="password" class="form-control border-start-0 border-end-0 rounded-0 ps-1" required>
+            <button class="btn btn-outline-secondary border bg-light rounded-end-3 text-muted px-3" type="button" onclick="togglePasswordVisibility('password', 'togglePasswordIconSignup')">
+              <i class="fa-solid fa-eye" id="togglePasswordIconSignup"></i>
+            </button>
+            <div class="invalid-feedback">Please enter a password.</div>
+          </div>
+        </div>
+
+        <!-- Confirm Password Field -->
+        <div class="mb-3">
+          <label for="confirmPassword" class="form-label fw-semibold">Confirm Password</label>
+          <div class="input-group has-validation">
+            <span class="input-group-text bg-light border-end-0 rounded-start-3"><i class="fa-solid fa-lock text-muted"></i></span>
+            <input id="confirmPassword" name="confirmPassword" placeholder="re-enter password" type="password" class="form-control border-start-0 border-end-0 rounded-0 ps-1" required>
+            <button class="btn btn-outline-secondary border bg-light rounded-end-3 text-muted px-3" type="button" onclick="togglePasswordVisibility('confirmPassword', 'togglePasswordIconConfirm')">
+              <i class="fa-solid fa-eye" id="togglePasswordIconConfirm"></i>
+            </button>
+            <div class="invalid-feedback" id="confirmPasswordError">Passwords do not match.</div>
+          </div>
+        </div>
+
+        <button class="btn btn-dark w-100 py-2.5 rounded-3 btn-auth mb-2" type="submit">SignUp</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  function togglePasswordVisibility(fieldId, iconId) {
+    const passwordInput = document.getElementById(fieldId);
+    const toggleIcon = document.getElementById(iconId);
+    
+    if (passwordInput.type === "password") {
+      passwordInput.type = "text";
+      toggleIcon.classList.remove("fa-eye");
+      toggleIcon.classList.add("fa-eye-slash");
+    } else {
+      passwordInput.type = "password";
+      toggleIcon.classList.remove("fa-eye-slash");
+      toggleIcon.classList.add("fa-eye");
+    }
+  }
+
+  const form = document.getElementById('signupForm');
+  const password = document.getElementById('password');
+  const confirmPassword = document.getElementById('confirmPassword');
+  const errorDiv = document.getElementById('confirmPasswordError');
+
+  function validatePasswordMatch() {
+    if (confirmPassword.value !== password.value) {
+      confirmPassword.setCustomValidity("Passwords do not match.");
+      errorDiv.textContent = "Passwords do not match.";
+      confirmPassword.classList.add('is-invalid');
+    } else {
+      confirmPassword.setCustomValidity("");
+      confirmPassword.classList.remove('is-invalid');
+    }
+  }
+
+  confirmPassword.addEventListener('input', validatePasswordMatch);
+  password.addEventListener('input', function() {
+    if (confirmPassword.value) {
+      validatePasswordMatch();
+    }
+  });
+
+  form.addEventListener('submit', function (event) {
+    validatePasswordMatch();
+
+    if (!form.checkValidity()) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    form.classList.add('was-validated');
+  }, false);
+</script>

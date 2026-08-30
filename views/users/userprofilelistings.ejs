@@ -1,0 +1,58 @@
+<% layout("/layouts/boilerplate.ejs") %>
+
+<div class="container mt-4 mb-5">
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+      <h2 class="fw-bold mb-1"><i class="fa-solid fa-list text-danger me-2"></i>My Listings</h2>
+      <p class="text-muted small mb-0">Manage all places created by you</p>
+    </div>
+    <a href="/listings/new" class="btn btn-dark rounded-pill px-4 fw-semibold">
+      <i class="fa-solid fa-plus me-1"></i> Add New Listing
+    </a>
+  </div>
+
+  <% if(myListings.length === 0) { %>
+    <div class="card border-0 shadow-sm rounded-4 p-5 text-center bg-white my-4">
+      <i class="fa-solid fa-house-chimney-crack fa-3x text-muted mb-3"></i>
+      <h5 class="fw-bold">You haven't posted any listings yet</h5>
+      <p class="text-muted small">Start hosting by creating your first property listing on WanderLust.</p>
+      <div>
+        <a href="/listings/new" class="btn btn-dark rounded-pill px-4">Create Listing</a>
+      </div>
+    </div>
+  <% } else { %>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+      <% for(let listing of myListings) { %>
+        <div class="col">
+          <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden listing-card">
+            <img src="<%= listing.image.url %>" class="card-img-top" alt="<%= listing.title %>" style="height: 14rem; object-fit: cover;">
+            <div class="card-body p-3 d-flex flex-column justify-content-between">
+              <div>
+                <div class="d-flex justify-content-between align-items-start mb-1">
+                  <span class="badge bg-light text-danger border border-danger-subtle rounded-pill mb-2"><%= listing.category %></span>
+                  <small class="text-muted"><i class="fa-solid fa-location-dot me-1 text-danger"></i><%= listing.location %></small>
+                </div>
+                <h5 class="fw-bold mb-2 text-truncate"><%= listing.title %></h5>
+                <p class="text-muted small text-truncate-2 mb-3"><%= listing.description %></p>
+              </div>
+
+              <div>
+                <h6 class="fw-bold text-danger mb-3">&#8360 <%= listing.price.toLocaleString("en-PK") %> <span class="fs-6 text-muted fw-normal">/ night</span></h6>
+                <div class="d-flex gap-2 border-top pt-2">
+                  <a href="/listings/<%= listing._id %>" class="btn btn-outline-secondary btn-sm rounded-3 flex-fill fw-semibold">View</a>
+                  <a href="/listings/<%= listing._id %>/edit" class="btn btn-outline-dark btn-sm rounded-3 flex-fill fw-semibold"><i class="fa-solid fa-pen-to-square me-1"></i>Edit</a>
+                  
+                  <!-- Yahan Action URL mein redirectUrl parameter add kiya gaya hai -->
+                  <form method="post" action="/listings/<%= listing._id %>?_method=DELETE&redirectUrl=/profile/listings" class="flex-fill">
+                    <button class="btn btn-outline-danger btn-sm rounded-3 w-100 fw-semibold"><i class="fa-solid fa-trash me-1"></i>Delete</button>
+                  </form>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  <% } %>
+</div>

@@ -1,0 +1,164 @@
+<% layout("admin/adminboilerplate.ejs") %>
+
+<div class="container-fluid px-0">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+      <h2 class="fw-bold text-dark mb-1">All Platform Listings</h2>
+      <p class="text-muted mb-0">Manage, search, and oversee all properties posted by users across WanderLust.</p>
+    </div>
+    <div class="badge bg-dark fs-6 px-3 py-2 rounded-3 align-self-start align-self-md-auto">
+      Total Listings: <span id="totalCount"><%= allListings.length %></span>
+    </div>
+  </div>
+
+  <!-- Search and Filter Bar -->
+  <div class="card border-0 shadow-sm rounded-4 p-3 bg-white mb-4">
+    <div class="row g-3 align-items-center">
+      <div class="col-md-7">
+        <div class="input-group">
+          <span class="input-group-text bg-light border-end-0 rounded-start-3 text-muted ps-3">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </span>
+          <input type="text" id="searchInput" class="form-control border-start-0 bg-light rounded-end-3 shadow-none ps-1" placeholder="Search by title, location, country, or owner username..." onkeyup="filterListings()">
+        </div>
+      </div>
+      <div class="col-md-5">
+        <div class="d-flex align-items-center gap-2">
+          <label for="sortSelect" class="form-label text-muted small fw-semibold text-nowrap mb-0">Sort By:</label>
+          <select id="sortSelect" class="form-select bg-light border-0 shadow-none rounded-3" onchange="sortListings()">
+            <option value="newest">Newest First (Default)</option>
+            <option value="oldest">Oldest First</option>
+            <option value="price-low">Price: Low to High</option>
+            <option value="price-high">Price: High to Low</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Listings Table Card -->
+  <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0" id="listingsTable">
+        <thead class="table-light text-uppercase fs-7 text-secondary">
+          <tr>
+            <th class="ps-4 py-3">Property</th>
+            <th class="py-3">Owner</th>
+            <th class="py-3">Location</th>
+            <th class="py-3">Price</th>
+            <th class="pe-4 py-3 text-end">Action</th>
+          </tr>
+        </thead>
+        <tbody id="listingsTableBody">
+          <% if (allListings && allListings.length > 0) { %>
+            <% allListings.forEach((listing, index) => { %>
+              <tr class="listing-row" 
+                  data-title="<%= listing.title.toLowerCase() %>" 
+                  data-location="<%= listing.location.toLowerCase() %>" 
+                  data-country="<%= listing.country.toLowerCase() %>" 
+                  data-owner="<%= listing.owner ? listing.owner.username.toLowerCase() : 'unknown' %>"
+                  data-price="<%= listing.price || 0 %>"
+                  data-date="<%= listing._id.getTimestamp().getTime() %>"
+                  onclick="window.location.href='/admin/listings/<%= listing._id %>'" style="cursor: pointer;">
+                <td class="ps-4 py-3">
+                  <div class="d-flex align-items-center gap-3">
+                    <img src="<%= listing.image && listing.image.url ? listing.image.url : 'https://images.unsplash.com/photo-1625244733175-f44046603348' %>" alt="Listing" class="rounded-3 object-fit-cover shadow-sm" style="width: 50px; height: 50px;">
+                    <div>
+                      <h6 class="fw-bold text-dark mb-0 text-truncate" style="max-width: 250px;"><%= listing.title %></h6>
+                      <small class="text-muted">ID: <%= listing._id %></small>
+                    </div>
+                  </div>
+                </td>
+                <td class="py-3">
+                  <% if (listing.owner) { %>
+                    <span class="fw-semibold text-dark"><%= listing.owner.username %></span><br>
+                    <small class="text-muted"><%= listing.owner.email %></small>
+                  <% } else { %>
+                    <span class="text-muted fst-italic">Unknown Owner</span>
+                  <% } %>
+                </td>
+                <td class="py-3 text-secondary">
+                  <%= listing.location %>, <%= listing.country %>
+                </td>
+                <td class="py-3 fw-semibold text-dark">
+                  Rs. <%= listing.price ? listing.price.toLocaleString("en-US") : 0 %> <small class="text-muted fw-normal">/ night</small>
+                </td>
+                <td class="pe-4 py-3 text-end" onclick="event.stopPropagation()">
+                  <div class="d-flex align-items-center justify-content-end gap-2">
+                    <a href="/listings/<%= listing._id %>" target="_blank" class="btn btn-sm btn-outline-secondary rounded-pill px-3 shadow-none" title="View on Website">
+                      <i class="fa-solid fa-globe"></i>
+                    </a>
+                    <form action="/admin/listings/<%= listing._id %>?_method=DELETE" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this listing?');">
+                      <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3 shadow-none" title="Delete Listing">
+                        <i class="fa-solid fa-trash-can"></i>
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          <% } else { %>
+            <tr id="noResultsRow">
+              <td colspan="5" class="text-center py-5 text-muted">
+                <i class="fa-solid fa-hotel fs-2 mb-2 d-block text-secondary opacity-50"></i>
+                No listings found on the platform yet.
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Real-time Search / Filtering Logic
+  function filterListings() {
+    let input = document.getElementById('searchInput').value.toLowerCase();
+    let rows = document.querySelectorAll('.listing-row');
+    let visibleCount = 0;
+
+    rows.forEach(row => {
+      let title = row.getAttribute('data-title');
+      let location = row.getAttribute('data-location');
+      let country = row.getAttribute('data-country');
+      let owner = row.getAttribute('data-owner');
+
+      if (title.includes(input) || location.includes(input) || country.includes(input) || owner.includes(input)) {
+        row.style.display = "";
+        visibleCount++;
+      } else {
+        row.style.display = "none";
+      }
+    });
+
+    document.getElementById('totalCount').innerText = visibleCount;
+  }
+
+  // Sorting Logic
+  function sortListings() {
+    let tbody = document.getElementById('listingsTableBody');
+    let rowsArray = Array.from(document.querySelectorAll('.listing-row'));
+    let sortVal = document.getElementById('sortSelect').value;
+
+    rowsArray.sort((a, b) => {
+      let priceA = parseFloat(a.getAttribute('data-price'));
+      let priceB = parseFloat(b.getAttribute('data-price'));
+      let dateA = parseInt(a.getAttribute('data-date'));
+      let dateB = parseInt(b.getAttribute('data-date'));
+
+      if (sortVal === 'newest') {
+        return dateB - dateA; // Descending order (latest first)
+      } else if (sortVal === 'oldest') {
+        return dateA - dateB; // Ascending order
+      } else if (sortVal === 'price-low') {
+        return priceA - priceB;
+      } else if (sortVal === 'price-high') {
+        return priceB - priceA;
+      }
+    });
+
+    // Re-append sorted rows into table body
+    rowsArray.forEach(row => tbody.appendChild(row));
+  }
+</script>

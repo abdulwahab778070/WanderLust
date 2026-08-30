@@ -1,0 +1,324 @@
+<% layout("/layouts/boilerplate.ejs") %>
+
+<div class="container mt-4 mb-5">
+  <div class="mb-4">
+    <h2 class="fw-bold mb-1"><i class="fa-solid fa-comments text-danger me-2"></i>Direct Messages</h2>
+    <p class="text-muted small mb-0">Manage inquiries received on your listings and messages sent to property hosts</p>
+  </div>
+
+  <!-- Section Tabs Navigation -->
+  <ul class="nav nav-pills mb-4 bg-white p-2 rounded-4 shadow-sm border" id="messageTabs" role="tablist">
+    <li class="nav-item flex-fill text-center" role="presentation">
+      <button class="nav-link active rounded-pill fw-semibold w-100 py-2.5" id="received-tab" data-bs-toggle="pill" data-bs-target="#received" type="button" role="tab" aria-controls="received" aria-selected="true">
+        <i class="fa-solid fa-inbox me-2"></i> Received Messages (<%= receivedConversations.length %>)
+      </button>
+    </li>
+    <li class="nav-item flex-fill text-center" role="presentation">
+      <button class="nav-link rounded-pill fw-semibold w-100 py-2.5" id="sent-tab" data-bs-toggle="pill" data-bs-target="#sent" type="button" role="tab" aria-controls="sent" aria-selected="false">
+        <i class="fa-solid fa-paper-plane me-2"></i> Sent Messages (<%= sentConversations.length %>)
+      </button>
+    </li>
+  </ul>
+
+  <!-- Tab Content -->
+  <div class="tab-content" id="messageTabsContent">
+    
+    <!-- 1. Received Messages Tab -->
+    <div class="tab-pane fade show active" id="received" role="tabpanel" aria-labelledby="received-tab">
+      <% if(!receivedConversations || receivedConversations.length === 0) { %>
+        <div class="card border-0 shadow-sm rounded-4 p-5 text-center bg-white my-3">
+          <i class="fa-solid fa-inbox fa-3x text-muted mb-3"></i>
+          <h5 class="fw-bold">No received messages yet</h5>
+          <p class="text-muted small">When users send inquiries regarding your properties, their profile chats will appear here.</p>
+        </div>
+      <% } else { %>
+        <form id="deleteReceivedForm" action="/profile/messages/delete-selected?_method=DELETE" method="POST">
+          
+          <div class="card border-0 shadow-sm rounded-4 p-3 bg-white mb-3 d-flex flex-row justify-content-between align-items-center">
+            <div class="form-check mb-0">
+              <input class="form-check-input me-2" type="checkbox" id="selectAllReceived" onclick="toggleSelectAll('received')">
+              <label class="form-check-label fw-semibold small text-dark" for="selectAllReceived">Select All Received</label>
+            </div>
+            <button type="button" class="btn btn-outline-danger btn-sm rounded-pill fw-semibold" onclick="confirmBatchDelete('deleteReceivedForm')">
+              <i class="fa-solid fa-trash me-1"></i> Delete Selected
+            </button>
+          </div>
+
+          <div class="d-flex flex-column gap-3">
+            <% for(let conv of receivedConversations) { %>
+              <div class="card border-0 shadow-sm rounded-4 p-3 p-md-4 bg-white vertical-listing-card position-relative <%= conv.unseenCount > 0 ? 'border border-danger border-2 bg-light-subtle' : '' %>"
+                   style="cursor: pointer;"
+                   onclick="navigateToThread(event, '/profile/messages/<%= conv.sampleMsgId %>')">
+                
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                  
+                  <div class="d-flex align-items-center gap-3">
+                    <input class="form-check-input received-checkbox me-1" type="checkbox" name="conversationIds" value="<%= conv.sampleMsgId %>" onclick="event.stopPropagation();">
+                    
+                    <div class="bg-light rounded-circle p-3 position-relative">
+                      <i class="fa-solid fa-user-circle fa-2x text-danger"></i>
+                      <% if(conv.unseenCount > 0) { %>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-danger p-1">
+                          <span class="visually-hidden">New message</span>
+                        </span>
+                      <% } %>
+                    </div>
+
+                    <div>
+                      <h6 class="fw-bold mb-1 text-dark d-flex align-items-center gap-2">
+                        <% if(conv.otherUser) { %>
+                          <span><i class="fa-solid fa-user me-1 text-danger"></i><%= conv.otherUser.username %></span>
+                        <% } else { %>
+                          <span class="text-muted"><i class="fa-solid fa-user-slash me-1"></i>User Unavailable</span>
+                        <% } %>
+                        <% if(conv.unseenCount > 0) { %>
+                          <span class="badge bg-danger rounded-pill fs-7"><%= conv.unseenCount %> new</span>
+                        <% } %>
+                      </h6>
+                      <small class="text-muted d-block">
+                        <i class="fa-solid fa-phone me-1 text-success"></i>Contact: <%= conv.otherUser ? (conv.otherUser.contact || 'No Contact Saved') : 'N/A' %>
+                      </small>
+                    </div>
+                  </div>
+
+                  <!-- Listing Info Card -->
+                  <div class="d-flex align-items-center gap-2 bg-light p-2 rounded-3 border">
+                    <% if(conv.listing && conv.listing.image) { %>
+                      <img src="<%= conv.listing.image.url %>" class="rounded-2 object-fit-cover" style="width: 42px; height: 42px;" alt="listing">
+                    <% } else { %>
+                      <div class="bg-secondary-subtle rounded-2 d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;"><i class="fa-solid fa-house-circle-xmark text-secondary"></i></div>
+                    <% } %>
+                    <div>
+                      <small class="text-muted d-block style-tiny">Inquiry for your listing:</small>
+                      <% if(conv.listing) { %>
+                        <small class="fw-bold text-dark d-block text-truncate" style="max-width: 180px;"><%= conv.listing.title %></small>
+                      <% } else { %>
+                        <small class="fw-bold text-danger d-block">Listing Not Available</small>
+                      <% } %>
+                    </div>
+                  </div>
+
+                  <!-- Right Info -->
+                  <div class="d-flex align-items-center gap-3 ms-auto">
+                    <div class="text-end">
+                      <span class="badge <%= conv.unseenCount > 0 ? 'bg-danger text-white' : 'bg-light text-secondary' %> border rounded-pill px-3 py-1 mb-1">
+                        <%= conv.lastMessage.createdAt ? conv.lastMessage.createdAt.toString().split(" ").slice(0, 4).join(" ") : 'N/A' %>
+                      </span>
+                      <p class="<%= conv.unseenCount > 0 ? 'fw-bold text-dark' : 'text-muted' %> small mb-0 text-truncate" style="max-width: 200px;">
+                        <%= conv.lastMessage.message %>
+                      </p>
+                    </div>
+
+                    <button type="button" class="btn btn-sm btn-light border rounded-circle text-danger p-2" title="Delete Conversation" onclick="event.stopPropagation(); confirmSingleDelete('<%= conv.sampleMsgId %>')">
+                      <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                  </div>
+
+                </div>
+              </div>
+            <% } %>
+          </div>
+        </form>
+      <% } %>
+    </div>
+
+    <!-- 2. Sent Messages Tab -->
+    <div class="tab-pane fade" id="sent" role="tabpanel" aria-labelledby="sent-tab">
+      <% if(!sentConversations || sentConversations.length === 0) { %>
+        <div class="card border-0 shadow-sm rounded-4 p-5 text-center bg-white my-3">
+          <i class="fa-solid fa-paper-plane fa-3x text-muted mb-3"></i>
+          <h5 class="fw-bold">No sent messages yet</h5>
+          <p class="text-muted small">Inquiries you send to other property hosts will appear here as separate profile chats.</p>
+        </div>
+      <% } else { %>
+        <form id="deleteSentForm" action="/profile/messages/delete-selected?_method=DELETE" method="POST">
+          
+          <div class="card border-0 shadow-sm rounded-4 p-3 bg-white mb-3 d-flex flex-row justify-content-between align-items-center">
+            <div class="form-check mb-0">
+              <input class="form-check-input me-2" type="checkbox" id="selectAllSent" onclick="toggleSelectAll('sent')">
+              <label class="form-check-label fw-semibold small text-dark" for="selectAllSent">Select All Sent</label>
+            </div>
+            <button type="button" class="btn btn-outline-danger btn-sm rounded-pill fw-semibold" onclick="confirmBatchDelete('deleteSentForm')">
+              <i class="fa-solid fa-trash me-1"></i> Delete Selected
+            </button>
+          </div>
+
+          <div class="d-flex flex-column gap-3">
+            <% for(let conv of sentConversations) { %>
+              <div class="card border-0 shadow-sm rounded-4 p-3 p-md-4 bg-white vertical-listing-card position-relative <%= conv.unseenCount > 0 ? 'border border-danger border-2 bg-light-subtle' : '' %>"
+                   style="cursor: pointer;"
+                   onclick="navigateToThread(event, '/profile/messages/<%= conv.sampleMsgId %>')">
+                
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                  
+                  <div class="d-flex align-items-center gap-3">
+                    <input class="form-check-input sent-checkbox me-1" type="checkbox" name="conversationIds" value="<%= conv.sampleMsgId %>" onclick="event.stopPropagation();">
+
+                    <div class="bg-light rounded-circle p-3 position-relative">
+                      <i class="fa-solid fa-user-gear fa-2x text-primary"></i>
+                      <% if(conv.unseenCount > 0) { %>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-danger p-1">
+                          <span class="visually-hidden">New reply</span>
+                        </span>
+                      <% } %>
+                    </div>
+
+                    <div>
+                      <h6 class="fw-bold mb-1 text-dark d-flex align-items-center gap-2">
+                        <% if(conv.otherUser) { %>
+                          <span><i class="fa-solid fa-user me-1 text-primary"></i>Host: <%= conv.otherUser.username %></span>
+                        <% } else { %>
+                          <span class="text-muted"><i class="fa-solid fa-user-slash me-1"></i>User Unavailable</span>
+                        <% } %>
+                        <% if(conv.unseenCount > 0) { %>
+                          <span class="badge bg-danger rounded-pill fs-7"><%= conv.unseenCount %> new</span>
+                        <% } %>
+                      </h6>
+                      <small class="text-muted d-block">
+                        <i class="fa-solid fa-phone me-1 text-success"></i>Host Contact: <%= conv.otherUser ? (conv.otherUser.contact || 'No Contact Saved') : 'N/A' %>
+                      </small>
+                    </div>
+                  </div>
+
+                  <!-- Host Listing Detail Card -->
+                  <div class="d-flex align-items-center gap-2 bg-light p-2 rounded-3 border">
+                    <% if(conv.listing && conv.listing.image) { %>
+                      <img src="<%= conv.listing.image.url %>" class="rounded-2 object-fit-cover" style="width: 42px; height: 42px;" alt="listing">
+                    <% } else { %>
+                      <div class="bg-secondary-subtle rounded-2 d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;"><i class="fa-solid fa-house-circle-xmark text-secondary"></i></div>
+                    <% } %>
+                    <div>
+                      <small class="text-muted d-block style-tiny">Property Inquired:</small>
+                      <% if(conv.listing) { %>
+                        <small class="fw-bold text-dark d-block text-truncate" style="max-width: 180px;"><%= conv.listing.title %></small>
+                      <% } else { %>
+                        <small class="fw-bold text-danger d-block">Listing Not Available</small>
+                      <% } %>
+                    </div>
+                  </div>
+
+                  <!-- Right Info -->
+                  <div class="d-flex align-items-center gap-3 ms-auto">
+                    <div class="text-end">
+                      <span class="badge <%= conv.unseenCount > 0 ? 'bg-danger text-white' : 'bg-light text-secondary' %> border rounded-pill px-3 py-1 mb-1">
+                        <%= conv.lastMessage.createdAt ? conv.lastMessage.createdAt.toString().split(" ").slice(0, 4).join(" ") : 'N/A' %>
+                      </span>
+                      <p class="<%= conv.unseenCount > 0 ? 'fw-bold text-dark' : 'text-muted' %> small mb-0 text-truncate" style="max-width: 200px;">
+                        <strong><%= conv.lastMessage.sender && conv.lastMessage.sender._id.equals(crrUser._id) ? 'You: ' : '' %></strong><%= conv.lastMessage.message %>
+                      </p>
+                    </div>
+
+                    <button type="button" class="btn btn-sm btn-light border rounded-circle text-danger p-2" title="Delete Conversation" onclick="event.stopPropagation(); confirmSingleDelete('<%= conv.sampleMsgId %>')">
+                      <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                  </div>
+
+                </div>
+              </div>
+            <% } %>
+          </div>
+        </form>
+      <% } %>
+    </div>
+
+  </div>
+</div>
+
+<!-- Confirmation Delete Modal -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-header-title fw-bold text-danger" id="deleteConfirmModalLabel">
+          <i class="fa-solid fa-triangle-exclamation me-2"></i>Confirm Delete
+        </h5>
+        <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body py-3">
+        <p class="text-secondary mb-0">Are you sure you want to delete the selected conversation(s)? This action will permanently remove the message history from your inbox.</p>
+      </div>
+
+      <div class="modal-footer border-0 pt-0">
+        <button type="button" class="btn btn-outline-secondary rounded-pill btn-sm px-3" data-bs-dismiss="modal">Cancel</button>
+        <form id="singleDeleteForm" action="" method="POST" class="d-inline">
+          <input type="hidden" name="_method" value="DELETE">
+          <button id="confirmModalSubmitBtn" type="button" class="btn btn-danger rounded-pill px-4 fw-semibold btn-sm">Yes, Delete</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function navigateToThread(event, url) {
+    if (event.target.closest('.form-check-input') || event.target.closest('button')) {
+      return;
+    }
+    window.location.href = url;
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const activeTab = localStorage.getItem("activeMsgTab") || window.location.hash;
+
+    if (activeTab === "#sent" || activeTab === "sent") {
+      const sentTabBtn = document.getElementById("sent-tab");
+      if (sentTabBtn) {
+        const tab = new bootstrap.Tab(sentTabBtn);
+        tab.show();
+      }
+    } else if (activeTab === "#received" || activeTab === "received") {
+      const receivedTabBtn = document.getElementById("received-tab");
+      if (receivedTabBtn) {
+        const tab = new bootstrap.Tab(receivedTabBtn);
+        tab.show();
+      }
+    }
+
+    const tabElList = document.querySelectorAll('button[data-bs-toggle="pill"]');
+    tabElList.forEach(function (tabEl) {
+      tabEl.addEventListener("shown.bs.tab", function (event) {
+        const targetId = event.target.getAttribute("data-bs-target");
+        localStorage.setItem("activeMsgTab", targetId);
+        history.replaceState(null, null, targetId);
+      });
+    });
+  });
+
+  function toggleSelectAll(type) {
+    const isChecked = document.getElementById(type === 'received' ? 'selectAllReceived' : 'selectAllSent').checked;
+    const checkboxes = document.querySelectorAll(`.${type}-checkbox`);
+    checkboxes.forEach(cb => cb.checked = isChecked);
+  }
+
+  function confirmSingleDelete(msgId) {
+    const singleForm = document.getElementById("singleDeleteForm");
+    singleForm.action = `/profile/messages/${msgId}?_method=DELETE`;
+    
+    const submitBtn = document.getElementById("confirmModalSubmitBtn");
+    submitBtn.onclick = function() {
+      singleForm.submit();
+    };
+
+    const modal = new bootstrap.Modal(document.getElementById("deleteConfirmModal"));
+    modal.show();
+  }
+
+  function confirmBatchDelete(formId) {
+    const form = document.getElementById(formId);
+    const checkedBoxes = form.querySelectorAll('input[name="conversationIds"]:checked');
+    
+    if (checkedBoxes.length === 0) {
+      alert("Please select at least one conversation to delete.");
+      return;
+    }
+
+    const submitBtn = document.getElementById("confirmModalSubmitBtn");
+    submitBtn.onclick = function() {
+      form.submit();
+    };
+
+    const modal = new bootstrap.Modal(document.getElementById("deleteConfirmModal"));
+    modal.show();
+  }
+</script>

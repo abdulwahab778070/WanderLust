@@ -1,0 +1,75 @@
+<% layout("admin/adminboilerplate.ejs") %>
+
+<div class="container-fluid px-0">
+  <div class="mb-4">
+    <h2 class="fw-bold text-dark mb-1">Dashboard Overview</h2>
+    <p class="text-muted">Welcome back, Admin. Here is a summary of your platform's activity.</p>
+  </div>
+
+  <!-- Stats Cards Row -->
+  <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
+    
+    <!-- Total Registered Users -->
+    <div class="col">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100 border-start border-4 border-danger">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <span class="text-muted small fw-semibold text-uppercase">Total Registered Users</span>
+            <h2 class="fw-bold text-dark mt-2 mb-0"><%= totalUsers %></h2>
+          </div>
+          <div class="bg-danger bg-opacity-10 text-danger rounded-4 p-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+            <i class="fa-solid fa-users fs-4"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Total Posted Listings -->
+    <div class="col">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100 border-start border-4 border-dark">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <span class="text-muted small fw-semibold text-uppercase">Total Posted Listings</span>
+            <h2 class="fw-bold text-dark mt-2 mb-0"><%= totalListings %></h2>
+          </div>
+          <div class="bg-dark bg-opacity-10 text-dark rounded-4 p-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+            <i class="fa-solid fa-hotel fs-4"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Total System Messages -->
+    <div class="col">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100 border-start border-4 border-primary">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <span class="text-muted small fw-semibold text-uppercase">System Messages</span>
+            <h2 class="fw-bold text-dark mt-2 mb-0"><%= totalMessages %></h2>
+          </div>
+          <div class="bg-primary bg-opacity-10 text-primary rounded-4 p-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+            <i class="fa-solid fa-comments fs-4"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Quick Actions Card -->
+  <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+    <h5 class="fw-bold text-dark mb-3"><i class="fa-solid fa-bolt text-danger me-2"></i>Quick Management Links</h5>
+    <div class="d-flex flex-wrap gap-3">
+      <a href="/admin/listings" class="btn btn-dark rounded-pill px-4 py-2 fw-semibold">
+        <i class="fa-solid fa-hotel me-2"></i>All Listings
+      </a>
+      <a href="/admin/users" class="btn btn-outline-dark rounded-pill px-4 py-2 fw-semibold">
+        <i class="fa-solid fa-users-gear me-2"></i>All Users
+      </a>
+      <a href="/admin/chats" class="btn btn-outline-danger rounded-pill px-4 py-2 fw-semibold">
+        <i class="fa-solid fa-bullhorn me-2"></i>All Messages
+      </a>
+    </div>
+  </div>
+
+</div>

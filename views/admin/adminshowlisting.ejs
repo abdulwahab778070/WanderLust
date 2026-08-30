@@ -1,0 +1,105 @@
+<% layout("admin/adminboilerplate.ejs") %>
+
+<div class="container-fluid px-0">
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <a href="/admin/listings" class="text-decoration-none text-muted small fw-semibold mb-2 d-inline-block">
+        <i class="fa-solid fa-arrow-left me-1"></i> Back to All Listings
+      </a>
+      <h2 class="fw-bold text-dark mb-0">Listing Details & Overview</h2>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="/listings/<%= listing._id %>" target="_blank" class="btn btn-outline-dark rounded-3 px-3 fw-semibold shadow-sm">
+        <i class="fa-solid fa-globe me-2"></i>Live Preview
+      </a>
+      <form action="/admin/listings/<%= listing._id %>?_method=DELETE" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this listing?');">
+        <button type="submit" class="btn btn-danger rounded-3 px-3 fw-semibold shadow-sm">
+          <i class="fa-solid fa-trash-can me-2"></i>Delete Listing
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Left Column: Property Image & Details -->
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white mb-4">
+        <div class="position-relative">
+          <img src="<%= listing.image && listing.image.url ? listing.image.url : 'https://images.unsplash.com/photo-1625244733175-f44046603348' %>" alt="<%= listing.title %>" class="w-100 object-fit-cover" style="height: 400px;">
+          <div class="position-absolute bottom-0 start-0 m-3 bg-dark bg-opacity-75 text-white px-3 py-2 rounded-3 backdrop-blur">
+            <h4 class="fw-bold mb-0">Rs. <%= listing.price ? listing.price.toLocaleString("en-US") : 0 %> <small class="fw-normal fs-6">/ night</small></h4>
+          </div>
+        </div>
+        <div class="p-4">
+          <h3 class="fw-bold text-dark mb-3"><%= listing.title %></h3>
+          <p class="text-secondary lh-lg mb-4"><%= listing.description %></p>
+          
+          <div class="row g-3 border-top pt-4 text-muted">
+            <div class="col-sm-6">
+              <div class="d-flex align-items-center gap-2">
+                <i class="fa-solid fa-location-dot text-danger fs-5"></i>
+                <div>
+                  <small class="d-block text-uppercase fw-semibold text-secondary">Location</small>
+                  <span class="text-dark fw-medium"><%= listing.location %>, <%= listing.country %></span>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="d-flex align-items-center gap-2">
+                <i class="fa-solid fa-fingerprint text-dark fs-5"></i>
+                <div>
+                  <small class="d-block text-uppercase fw-semibold text-secondary">Listing ID</small>
+                  <span class="text-dark fw-medium font-monospace"><%= listing._id %></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Owner Information -->
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white sticky-top" style="top: 95px;">
+        <h5 class="fw-bold text-dark mb-3 pb-2 border-bottom">Owner Information</h5>
+        
+        <% if (listing.owner) { %>
+          <div class="d-flex align-items-center gap-3 mb-4">
+            <div class="bg-danger bg-opacity-10 text-danger rounded-circle d-flex align-items-center justify-content-center fw-bold fs-4" style="width: 55px; height: 55px;">
+              <%= listing.owner.username.charAt(0).toUpperCase() %>
+            </div>
+            <div>
+              <h6 class="fw-bold text-dark mb-0"><%= listing.owner.username %></h6>
+              <span class="text-muted small"><%= listing.owner.email %></span>
+            </div>
+          </div>
+
+          <div class="bg-light rounded-3 p-3 mb-3">
+            <div class="d-flex justify-content-between text-muted small mb-2">
+              <span>Account ID:</span>
+              <span class="font-monospace text-dark"><%= listing.owner._id %></span>
+            </div>
+            <div class="d-flex justify-content-between text-muted small">
+              <span>Phone No:</span>
+              <span class="text-dark fw-semibold"><%= listing.owner.contact || 'Not Provided' %></span>
+            </div>
+          </div>
+
+          <div class="d-grid gap-2">
+            <a href="/admin/chats/user/<%= listing.owner._id %>" class="btn btn-dark rounded-3 fw-semibold shadow-sm py-2 text-decoration-none text-center">
+              <i class="fa-solid fa-comments me-2"></i>Message Listing Owner
+            </a>
+            <a href="/admin/users/<%= listing.owner._id %>" class="btn btn-outline-dark rounded-3 fw-semibold shadow-sm py-2 text-decoration-none text-center">
+              <i class="fa-solid fa-users-gear me-2"></i>Show Owner Detail
+            </a>
+          </div>
+        <% } else { %>
+          <div class="text-center py-4 text-muted">
+            <i class="fa-solid fa-user-slash fs-2 mb-2 d-block"></i>
+            <p class="mb-0">Owner information is unavailable or account has been deleted.</p>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>

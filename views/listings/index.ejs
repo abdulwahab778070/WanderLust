@@ -1,0 +1,123 @@
+<% layout("/layouts/boilerplate.ejs") %>
+
+<!-- Category Filters Toolbar -->
+<div class="filters-sticky mb-4">
+  <div class="d-flex align-items-center justify-content-between gap-3 filter-container">
+    <div id="filters">
+      <a href="/listings" class="filter-link">
+        <div class="filter <%= !selectedCategory ? 'active-filter' : '' %>">
+          <div><i class="fa-solid fa-border-all"></i></div>
+          <p>All listing</p>
+        </div>
+      </a>
+      <a href="/listings?category=Rooms" class="filter-link">
+        <div class="filter <%= selectedCategory === 'Rooms' ? 'active-filter' : '' %>">
+          <div><i class="fa-solid fa-bed"></i></div>
+          <p>Rooms</p>
+        </div>
+      </a>
+      <a href="/listings?category=Iconic Cities" class="filter-link">
+        <div class="filter <%= selectedCategory === 'Iconic Cities' ? 'active-filter' : '' %>">
+          <div><i class="fa-solid fa-mountain-city"></i></div>
+          <p>Iconic Cities</p>
+        </div>
+      </a>
+      <a href="/listings?category=Mountains" class="filter-link">
+        <div class="filter <%= selectedCategory === 'Mountains' ? 'active-filter' : '' %>">
+          <div><i class="fa-solid fa-mountain"></i></div>
+          <p>Mountains</p>
+        </div>
+      </a>
+      <a href="/listings?category=Castles" class="filter-link">
+        <div class="filter <%= selectedCategory === 'Castles' ? 'active-filter' : '' %>">
+          <div><i class="fa-brands fa-fort-awesome"></i></div>
+          <p>Castles</p>
+        </div>
+      </a>
+      <a href="/listings?category=Amazing Pools" class="filter-link">
+        <div class="filter <%= selectedCategory === 'Amazing Pools' ? 'active-filter' : '' %>">
+          <div><i class="fa-solid fa-person-swimming"></i></div>
+          <p>Amazing Pools</p>
+        </div>
+      </a>
+      <a href="/listings?category=Camping" class="filter-link">
+        <div class="filter <%= selectedCategory === 'Camping' ? 'active-filter' : '' %>">
+          <div><i class="fa-solid fa-campground"></i></div>
+          <p>Camping</p>
+        </div>
+      </a>
+      <a href="/listings?category=Farms" class="filter-link">
+        <div class="filter <%= selectedCategory === 'Farms' ? 'active-filter' : '' %>">
+          <div><i class="fa-solid fa-tractor"></i></div>
+          <p>Farms</p>
+        </div>
+      </a>
+      <a href="/listings?category=Arctic" class="filter-link">
+        <div class="filter <%= selectedCategory === 'Arctic' ? 'active-filter' : '' %>">
+          <div><i class="fa-regular fa-snowflake"></i></div>
+          <p>Arctic</p>
+        </div>
+      </a>
+      <a href="/listings?category=Domes" class="filter-link">
+        <div class="filter <%= selectedCategory === 'Domes' ? 'active-filter' : '' %>">
+          <div><i class="fa-solid fa-igloo"></i></div>
+          <p>Domes</p>
+        </div>
+      </a>
+      <a href="/listings?category=Boats" class="filter-link">
+        <div class="filter <%= selectedCategory === 'Boats' ? 'active-filter' : '' %>">
+          <div><i class="fa-solid fa-ship"></i></div>
+          <p>Boats</p>
+        </div>
+      </a>
+    </div>
+
+    <!-- Tax Switch Toggle -->
+    <div class="tax-toggle">
+      <div class="form-check form-switch form-check-reverse m-0">
+        <input class="form-check-input" type="checkbox" role="switch" id="switchCheckDefault">
+        <label class="form-check-label fw-semibold small" for="switchCheckDefault">We'll come to WanderLust</label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Listing Cards Grid -->
+<div class="row row-cols-xl-4 row-cols-lg-3 row-cols-md-2 row-cols-1 g-4">
+  <% if(allListings.length === 0) { %>
+    <div class="col-12 text-center my-5">
+      <h5 class="text-muted">No listings found for this category.</h5>
+    </div>
+  <% } %>
+  <% for (let listing of allListings){ %>
+    <div class="col">
+      <a href="/listings/<%= listing._id %>" class="listing-text">
+        <div class="card listing-card h-100">
+          <img src="<%= listing.image.url %>" class="card-img-top" alt="listing_image">
+          <div class="card-body d-flex flex-column justify-content-between">
+            <div>
+              <h6 class="card-title fw-bold text-truncate mb-1"><%= listing.title %></h6>
+              <p class="card-text text-muted mb-2">
+                &#8360 <%= listing.price.toLocaleString("en-PK") %> <span class="fw-normal">/ night</span>
+                <i class="tax-info">&nbsp; WanderLust</i>
+              </p>
+            </div>
+            <div class="d-flex justify-content-between align-items-center text-secondary small pt-2 border-top">
+              <span><i class="fa-solid fa-location-dot me-1"></i><%= listing.location %>, <%= listing.country %></span>
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>
+  <% } %>
+</div>
+
+<script>
+  const taxSwitch = document.getElementById("switchCheckDefault");
+  taxSwitch.addEventListener("click", () => {
+    const taxInfoElements = document.getElementsByClassName("tax-info");
+    for (let info of taxInfoElements) {
+      info.style.display = (info.style.display !== "inline") ? "inline" : "none";
+    }
+  });
+</script>
